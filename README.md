@@ -32,7 +32,7 @@ This UiPath automation:
 
 ## Workflow Architecture
 
-`
+```
 Main.xaml
   ├── InitAllApplications.xaml    → Initializes required applications
   ├── ReadData.xaml               → Reads all 3 sheets into DataTables
@@ -42,7 +42,7 @@ Main.xaml
   │     ├── Subtract quantity from source department (DeptStock)
   │     └── If Current_Stock < Min_Stock → Generate Bill (.txt)
   └── WriteData.xaml              → Writes updated Inventory & DeptStock back to Excel
-`
+```
 
 ### Workflow Details
 
@@ -58,7 +58,7 @@ Main.xaml
 
 ## File Structure
 
-`
+```
 HospitalInventoryManagementUiPath/
 ├── .gitignore
 ├── .project/                    # UiPath project metadata
@@ -74,7 +74,7 @@ HospitalInventoryManagementUiPath/
 ├── entry-points.json            # Workflow entry points definition
 ├── hospital.xlsx                # Master data file containing Inventory, Logs, and Stock sheets (input/output)
 └── bill.txt                     # Output invoice format
-`
+```
 
 ---
 
@@ -83,9 +83,31 @@ HospitalInventoryManagementUiPath/
 ### `hospital.xlsx` 
 A unified Excel file containing different sheets for our datasets.
 
-1. **Inventory Sheet**: Tracks each item's current stock level and details.
-2. **DepartmentStock Sheet**: Tracks how many units of each item are held by each department.
-3. **MovementLog Sheet**: Each row represents a transfer of items from one department to another.
+#### 1. **Stock Sheet**: 
+Tracks each unique item's properties, expiry, location, and price.
+
+| ProductType | UniqueItemID | ItemName      | ExpiryDate | CurrentLocation | Price | TakeHomeAllowed |
+|-------------|--------------|---------------|------------|-----------------|-------|-----------------|
+| SU          | UID-5001     | Syringe       | 2028-12-01 | Pharmacy        | 5     | N               |
+| RE          | UID-8001     | Stethoscope   | 2030-01-01 | ICU             | 150   | N               |
+| CO          | UID-9001     | Glucose IV    | 2026-05-10 | Consumed/Billed | 25    | Y               |
+| CO          | UID-9002     | Expired Meds  | 2025-01-01 | Pharmacy        | 10    | Y               |
+
+#### 2. **MovementLog Sheet**: 
+Each row represents a physical transfer of a unique item between departments.
+
+| UniqueItemID | FromDept   | ToDept     | Timestamp  |
+|--------------|------------|------------|------------|
+| UID-8001     | Pharmacy   | Cardiology | 2026-04-15 |
+| UID-8001     | Cardiology | ICU        | 2026-04-17 |
+
+#### 3. **PatientLog Sheet**: 
+Logs consumed items that are tied to specific patients for billing.
+
+| PatientID | UniqueItemID | ItemName   | TotalBill | Timestamp  |
+|-----------|--------------|------------|-----------|------------|
+| P-001     | UID-9001     | Glucose IV | 25.0      | 2026-04-15 |
+| P-001     | UID-9001     | Glucose IV | 25.0      | 2026-04-17 |
 
 ---
 
@@ -93,11 +115,11 @@ A unified Excel file containing different sheets for our datasets.
 
 When items are processed, the system replaces legacy `.txt` PO outputs with hospital invoices using the format in this file:
 
-`	ext
+```text
 Patient: P-001
 Item: Glucose IV
 Total Due: $25
-`
+```
 
 *(Note: Also supports `Sample_Invoice_P-001.txt` format with date and precise UID data depending on the workflow invocation).*
 
