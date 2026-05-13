@@ -158,9 +158,9 @@ Total Due: $25
 ## Setup & Usage
 
 1. **Clone the repository**:
-   `ash
+   ```bash
    git clone https://github.com/Shyam5002b/HospitalInventoryManagementUiPath.git
-   `
+   ```
 
 2. **Open in UiPath Studio**: Open the `project.json` file in UiPath Studio.
 
