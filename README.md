@@ -32,46 +32,42 @@ This UiPath automation:
 
 ## Workflow Architecture
 
-```
+```text
 Main.xaml
-  ├── InitAllApplications.xaml    → Initializes required applications
-  ├── ReadData.xaml               → Reads all 3 sheets into DataTables
-  ├── ProcessMovement.xaml        → Processes each movement row (loop)
-  │     ├── Deduct from Inventory (Current_Stock)
-  │     ├── Add quantity to destination department (DeptStock)
-  │     ├── Subtract quantity from source department (DeptStock)
-  │     └── If Current_Stock < Min_Stock → Generate Bill (.txt)
-  └── WriteData.xaml              → Writes updated Inventory & DeptStock back to Excel
+  ├── Track_Item.xaml             → Handles inventory tracking operations
+  ├── Move_Item.xaml              → Processes movement of unique items
+  └── Use_Item.xaml               → Manages consumption and billing
 ```
 
 ### Workflow Details
 
 | Workflow | Purpose |
 |---|---|
-| **Main.xaml** | Entry point. Orchestrates the full process inside a Try-Catch-Finally block. |
-| **InitAllApplications.xaml** | Placeholder for initializing applications (e.g., opening Excel). |
-| **ReadData.xaml** | Opens `hospital.xlsx` using Excel Process Scope and reads each sheet into a DataTable (`dtInventory`, `dtMovement`, `dtDeptStock`). |
-| **ProcessMovement.xaml** | For each movement row: extracts `Item_ID`, `From`, `To`, `Quantity`; updates inventory stock; updates department-level quantities; generates the `bill.txt` invoice text file. |
-| **WriteData.xaml** | Writes the updated `dtInventory` and `dtDeptStock` DataTables back to their respective Excel sheets. |
+| **Main.xaml** | Entry point. Orchestrates the flow based on action type. |
+| **Track_Item.xaml** | Reads and updates inventory from the Stock sheet. |
+| **Move_Item.xaml** | Processes the movement logs and updates item locations. |
+| **Use_Item.xaml** | Uses items, logs to PatientLog, and generates patient bills. |
+| **Debug.xaml** | Debugging utility. |
 
 ---
 
 ## File Structure
 
-```
+```text
 HospitalInventoryManagementUiPath/
 ├── .gitignore
 ├── .project/                    # UiPath project metadata
 ├── .settings/                   # UiPath settings
 ├── .tmh/                        # UiPath telemetry
 ├── Main.xaml                    # Main entry-point workflow
-├── InitAllApplications.xaml     # Application initialization workflow
-├── ReadData.xaml                # Excel data reading workflow
-├── ProcessMovement.xaml         # Movement processing & PO generation workflow
-├── WriteData.xaml               # Excel data writing workflow
+├── Track_Item.xaml              # Modular workflow: Track inventory
+├── Move_Item.xaml               # Modular workflow: Move items
+├── Use_Item.xaml                # Modular workflow: Consume items/Generate bills
+├── Debug.xaml                   # Debugging script
+├── entry-points.json            # Workflow entry points definition
 ├── project.json                 # UiPath project configuration
 ├── project.uiproj               # UiPath project file
-├── entry-points.json            # Workflow entry points definition
+├── Old/                         # Archived legacy code (ReadData, ProcessMovement, etc.)
 ├── hospital.xlsx                # Master data file containing Inventory, Logs, and Stock sheets (input/output)
 └── bill.txt                     # Output invoice format
 ```
@@ -127,16 +123,15 @@ Total Due: $25
 
 ## How It Works
 
-### Step-by-step Execution
+### Execution Flow based on Modular Workflows
 
-1. **Initialize** — `InitAllApplications.xaml` is invoked to set up the environment.
-2. **Read Data** — `ReadData.xaml` opens the multi-sheet `hospital.xlsx` and loads them into in-memory DataTables:
-   - `dtInventory` ← `Inventory` sheet
-   - `dtMovement` ← `MovementLog` sheet
-   - `dtDeptStock` ← `DepartmentStock` sheet
-3. **Process Movements** — For each row in `dtMovement`, `ProcessMovement.xaml` performs the tracking operations.
-4. **Output Generation** — Instead of generating generic purchase orders, the bot auto-generates the `bill.txt` styled patient invoices.
-5. **Write Data** — `WriteData.xaml` writes the updated `dtInventory` and `dtDeptStock` back to the sheets in `hospital.xlsx`.
+The codebase is heavily refactored for specific functional capabilities:
+
+1. **Routing** — `Main.xaml` determines which action needs to be processed.
+2. **Item Tracking** — In `Track_Item.xaml`, the bot interacts with the `Stock` sheet to read location and property details of a specific UniqueItemID.
+3. **Item Movement** — `Move_Item.xaml` manages records. If an item needs moving, it updates its location in the Stock and logs the action in the `MovementLog` sheet.
+4. **Item Consumption & Billing** — When items are dispatched for a patient, `Use_Item.xaml` determines the item price from the stock sheet, creates an entry in `PatientLog`, and dynamically auto-generates the `bill.txt` invoice receipt formatting.
+5. Legacy capabilities are stored in `/Old/` strictly for archiving reference.
 
 ### Error Handling
 
