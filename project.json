@@ -4,6 +4,10 @@
   "description": "Blank Process",
   "main": "Main.xaml",
   "dependencies": {
+    "Microsoft.Data.Sqlite": "[10.0.6]",
+    "Microsoft.Data.Sqlite.Core": "[10.0.6]",
+    "SQLitePCLRaw.bundle_e_sqlite3": "[3.0.2]",
+    "UiPath.Database.Activities": "[2.0.0]",
     "UiPath.Excel.Activities": "[3.4.1]",
     "UiPath.System.Activities": "[26.2.1]"
   },
